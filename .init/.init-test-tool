@@ -1,0 +1,4 @@
+{
+    "command": "pytest",
+    "working_directory": "/home/kavia/workspace/code-generation/techgear-e-commerce-platform-215921-215931/ecommerce_backend"
+}
