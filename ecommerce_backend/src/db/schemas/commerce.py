@@ -1,5 +1,5 @@
+from typing import List, Optional
 from pydantic import BaseModel
-from typing import List
 
 
 class CartItemBase(BaseModel):
@@ -8,11 +8,25 @@ class CartItemBase(BaseModel):
 
 
 class CartItemCreate(CartItemBase):
+    """Payload for adding items to cart."""
     pass
+
+
+class ProductBrief(BaseModel):
+    id: int
+    name: str
+    price_cents: int
+    currency: str
+    stock: int
+    image_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 
 class CartItemOut(CartItemBase):
     id: int
+    product: Optional[ProductBrief] = None
 
     class Config:
         from_attributes = True
@@ -32,6 +46,7 @@ class OrderItemOut(BaseModel):
     product_id: int
     quantity: int
     unit_price_cents: int
+    product: Optional[ProductBrief] = None
 
     class Config:
         from_attributes = True
