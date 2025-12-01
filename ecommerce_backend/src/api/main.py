@@ -19,9 +19,14 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Application startup/shutdown lifecycle.
+
+    - On startup: create_all tables and optionally seed data (when enabled).
+    - On shutdown: no actions currently.
+    """
     # Create tables
     Base.metadata.create_all(bind=engine)
-    # Seed data in dev if configured
+    # Seed data if configured; safe default is to seed for SQLite dev DBs
     if settings.SEED_DATA_ON_STARTUP and settings.DATABASE_URL.startswith("sqlite"):
         from sqlalchemy.orm import Session
         db = Session(bind=engine, future=True)
@@ -35,7 +40,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="E-commerce backend API",
+    description=(
+        "E-commerce backend API.\n\n"
+        "Notes:\n"
+        "- JWT bearer auth: obtain token from POST /auth/login and pass as 'Authorization: Bearer <token>'.\n"
+        "- CORS is configured via BACKEND_CORS_ORIGINS env (defaults to http://localhost:3000).\n"
+    ),
     version=settings.API_VERSION,
     lifespan=lifespan,
     openapi_tags=[
@@ -48,7 +58,7 @@ app = FastAPI(
     ],
 )
 
-# CORS: allow frontend on localhost:3000 by default
+# CORS: allow origins provided by env (e.g., http://localhost:3000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
